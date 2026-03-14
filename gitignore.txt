@@ -1,0 +1,17 @@
+# 所有的一般可执行文件
+/**/*.exe
+
+# keil
+/**/MDK-ARM/*
+
+!/**/MDK-ARM/*.uvoptx
+!/**/MDK-ARM/*.uvprojx
+!/**/MDK-ARM/*.startuo_*.s
+
+
+/**/cmake-build-debug
+
+/**/.vscode
+/**/workspace.code-workspace
+
+/**/.idea
