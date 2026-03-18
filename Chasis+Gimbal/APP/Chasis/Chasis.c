@@ -311,22 +311,22 @@ static void Chassis_UpdateCommandFromRemote(void)
 
 static void Chassis_CalcInverseKinematics(void)
 {
-    //单位换算
+    /* 电机轴 rpm = 轮组线速度 / 轮周长 * 60 * 减速比 */
     const float wheel_circ = 2.0f * (float)M_PI * CHASSIS_WHEEL_RADIUS_M;
     const float meter_per_sec_to_rpm = 60.0f / wheel_circ * CHASSIS_MOTOR_REDUCTION_RATIO;
-    //取数据
-    float vx = s_chassis.cmd.vx_mps;
-    float vy = s_chassis.cmd.vy_mps;
-    float wz_term = CHASSIS_HALF_SUM_M * s_chassis.cmd.wz_radps;
+    const float vx = s_chassis.cmd.vx_mps;
+    const float vy = s_chassis.cmd.vy_mps;
+    const float proj = CHASSIS_OMNI_PROJECTION_GAIN;
+    const float wz_term = CHASSIS_OMNI_ROTATION_RADIUS_M * s_chassis.cmd.wz_radps;
 
-    /* X 型麦克纳姆/全向轮逆解
+    /* X 型四全向轮逆解
      * 轮序：0 前左，1 前右，2 后左，3 后右  需要按照实际电机的ID进行调试
-     * 把底盘速度命令 (vx, vy, wz) 转成四个轮子的目标转速。
+     * 轮速由车体平移速度在各轮驱动方向上的投影和自旋项共同组成。
      */
-    s_chassis.target_wheel_rpm[0] = (vx - vy - wz_term) * meter_per_sec_to_rpm;
-    s_chassis.target_wheel_rpm[1] = (vx + vy + wz_term) * meter_per_sec_to_rpm;
-    s_chassis.target_wheel_rpm[2] = (vx + vy - wz_term) * meter_per_sec_to_rpm;
-    s_chassis.target_wheel_rpm[3] = (vx - vy + wz_term) * meter_per_sec_to_rpm;
+    s_chassis.target_wheel_rpm[0] = (proj * (vx - vy) - wz_term) * meter_per_sec_to_rpm;
+    s_chassis.target_wheel_rpm[1] = (proj * (vx + vy) + wz_term) * meter_per_sec_to_rpm;
+    s_chassis.target_wheel_rpm[2] = (proj * (vx + vy) - wz_term) * meter_per_sec_to_rpm;
+    s_chassis.target_wheel_rpm[3] = (proj * (vx - vy) + wz_term) * meter_per_sec_to_rpm;
 
     /* 防止任意单轮目标越界，保持方向不变整体缩放 */
     /*直白来说就是如果某一个轮子的目标转速超了上限，那就整体按比例缩小四轮速度，保持运动方向不变*/

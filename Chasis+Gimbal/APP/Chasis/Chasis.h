@@ -17,16 +17,32 @@ extern "C" {
  * - 安全保护与模式机
  * ========================= */
 
-#define CHASSIS_WHEEL_NUM                4U //电机个数
-#define CHASSIS_WHEEL_RADIUS_M           0.0815f //轮半径
-#define CHASSIS_HALF_LENGTH_M            0.1500f //底盘长度  需更改            //轮对角线距离 425mm = 0.425m
-#define CHASSIS_HALF_WIDTH_M             0.1500f //底盘宽度  需更改
-#define CHASSIS_HALF_SUM_M               (CHASSIS_HALF_LENGTH_M + CHASSIS_HALF_WIDTH_M)
+#define CHASSIS_WHEEL_NUM                4U      /* 电机个数 */
+#define CHASSIS_WHEEL_RADIUS_M           0.0815f /* 全向轮半径 */
+
+/*
+ * 机械结构来自 ACE 全向轮步兵：
+ * 四个轮组在底盘四角呈 X 型布置，轮心对角距离约 425 mm。
+ * 若前后/左右近似对称，则单边半距可由对角线反推。
+ */
+#define CHASSIS_WHEEL_DIAGONAL_M         0.4250f
+#define CHASSIS_HALF_LENGTH_M            (CHASSIS_WHEEL_DIAGONAL_M * 0.3535533906f)
+#define CHASSIS_HALF_WIDTH_M             (CHASSIS_WHEEL_DIAGONAL_M * 0.3535533906f)
+
+/* X 型全向轮平移速度投影系数：cos(45deg) = sin(45deg) = 1/sqrt(2) */
+#define CHASSIS_OMNI_PROJECTION_GAIN     0.7071067812f
+
+/*
+ * 轮速中的自旋项等效力臂。
+ * 对于对称 X 型全向轮：k_w = (L + W) / sqrt(2)，
+ * 也等价于轮心对角线的一半。
+ */
+#define CHASSIS_OMNI_ROTATION_RADIUS_M   (CHASSIS_WHEEL_DIAGONAL_M * 0.5f)
 
 #define CHASSIS_MOTOR_REDUCTION_RATIO    15.76f
-#define CHASSIS_WHEEL_RPM_MAX            850.0f  //轮速最快
-#define CHASSIS_CURRENT_MAX              12000.0f  //单电流最快
-#define CHASSIS_TOTAL_CURRENT_MAX        24000.0f  //合电流最快
+#define CHASSIS_WHEEL_RPM_MAX            850.0f    /* 轮速上限 */
+#define CHASSIS_CURRENT_MAX              12000.0f  /* 单轮电流上限 */
+#define CHASSIS_TOTAL_CURRENT_MAX        24000.0f  /* 总电流上限 */
 
 #define CHASSIS_CTRL_HZ                  1000.0f  //控制频率
 #define CHASSIS_DT_S                     (1.0f / CHASSIS_CTRL_HZ)
