@@ -320,6 +320,8 @@ static void Chassis_CalcInverseKinematics(void)
     const float wz_term = CHASSIS_OMNI_ROTATION_RADIUS_M * s_chassis.cmd.wz_radps;
 
     /* X 型四全向轮逆解
+     * 已知机器人的运动状态和位姿，求机器人各个机构的运动状态
+     * 就是我们已经知道了机器人想要的 vx、vy 和 wz，求每个轮子的目标转速。
      * 轮序：0 前左，1 前右，2 后左，3 后右  需要按照实际电机的ID进行调试
      * 轮速由车体平移速度在各轮驱动方向上的投影和自旋项共同组成。
      */
