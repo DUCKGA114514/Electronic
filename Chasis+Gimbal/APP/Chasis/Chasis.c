@@ -324,6 +324,9 @@ static void Chassis_CalcInverseKinematics(void)
      * 就是我们已经知道了机器人想要的 vx、vy 和 wz，求每个轮子的目标转速。
      * 轮序：0 前左，1 前右，2 后左，3 后右  需要按照实际电机的ID进行调试
      * 轮速由车体平移速度在各轮驱动方向上的投影和自旋项共同组成。
+     * cos(45°) = sin(45°) = 0.7071067812，投影系数为 1/sqrt(2)，即 CHASSIS_OMNI_PROJECTION_GAIN。
+     * 自旋项由车体绕 Z 轴转动速度决定的，wz_term 为车体绕 Z 轴转动速度乘以转动半径。
+     * meter_per_sec_to_rpm 单位换算，60/轮周长 * 减速比。
      */
     s_chassis.target_wheel_rpm[0] = (proj * (vx - vy) - wz_term) * meter_per_sec_to_rpm;
     s_chassis.target_wheel_rpm[1] = (proj * (vx + vy) + wz_term) * meter_per_sec_to_rpm;
@@ -332,6 +335,7 @@ static void Chassis_CalcInverseKinematics(void)
 
     /* 防止任意单轮目标越界，保持方向不变整体缩放 */
     /*直白来说就是如果某一个轮子的目标转速超了上限，那就整体按比例缩小四轮速度，保持运动方向不变*/
+    /*可以避免一个轮子拖着整车跑的情况，节省电力*/
     float max_abs = 1.0f;
     for (uint8_t i = 0; i < CHASSIS_WHEEL_NUM; i++)
     {
