@@ -44,7 +44,7 @@ typedef struct
 void GM6020_Init(void);
 void GM6020_ProcessFeedback(const CanRxFrame_t *frame);
 void GM6020_Periodic1ms(void);
-void GM6020_SendCurrentsCAN1(int16_t yaw_current, int16_t pitch_current);
+void GM6020_SendCurrentsCAN2(int16_t yaw_current, int16_t pitch_current);
 const GM6020_Motor_t *GM6020_GetMotors(void);
 const GM6020_Motor_t *GM6020_GetMotorByIndex(uint8_t index);
 uint8_t GM6020_AllOnline(void);

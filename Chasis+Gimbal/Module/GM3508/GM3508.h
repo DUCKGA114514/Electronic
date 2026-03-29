@@ -27,7 +27,7 @@ typedef struct
 
 void GM3508_Init(void);
 void GM3508_ProcessFeedback(const CanRxFrame_t *frame);
-void GM3508_SendCurrentCAN2(const int16_t current_cmd[GM3508_MOTOR_NUM]);
+void GM3508_SendCurrentCAN1(const int16_t current_cmd[GM3508_MOTOR_NUM]);
 void GM3508_Periodic1ms(void);
 const GM3508_Motor_t *GM3508_GetMotors(void);
 uint8_t GM3508_AllOnline(void);

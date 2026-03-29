@@ -41,8 +41,8 @@ void GM6020_Init(void)
 //解析收到电机反馈帧
 void GM6020_ProcessFeedback(const CanRxFrame_t *frame)
 {
-    //让指针和总线空过渡，防止空指针，只关心CAN1传送过来的信息
-    if ((frame == NULL) || (frame->bus != 1))
+    //让指针和总线空过渡，防止空指针，只关心CAN2传送过来的信息
+    if ((frame == NULL) || (frame->bus != 2))
     {
         return;
     }
@@ -121,8 +121,8 @@ void GM6020_Periodic1ms(void)
 
 
 
-//通过 CAN1 给 yaw 和 pitch 两个 6020 电机发送电流控制指令。
-void GM6020_SendCurrentsCAN1(int16_t yaw_current, int16_t pitch_current)
+//通过 CAN2 给 yaw 和 pitch 两个 6020 电机发送电流控制指令。
+void GM6020_SendCurrentsCAN2(int16_t yaw_current, int16_t pitch_current)
 {
 
     //CAN 数据区 8 字节，先全置零。
@@ -140,7 +140,7 @@ void GM6020_SendCurrentsCAN1(int16_t yaw_current, int16_t pitch_current)
     tx_data[3] = (uint8_t)(pitch_current & 0xFF);
 
     //根据需要修改STDID是1-4 还是 5-8
-    (void)CAN_Send_Handle(&hcan1, GM6020_CTRL_STDID_CURRENT_1_4, tx_data, 8U);
+    (void)CAN_Send_Handle(&hcan2, GM6020_CTRL_STDID_CURRENT_1_4, tx_data, 8U);
 }
 
 

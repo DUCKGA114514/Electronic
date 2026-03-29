@@ -81,24 +81,27 @@ static void Chassis_CANInitOnce(void)
         return;
     }
 
-    CAN_FilterTypeDef can2_filter = {0};
+    CAN_FilterTypeDef can1_filter = {0};
 
     /* CAN2：底盘 3508 反馈接收 */
     //此处先全开放，后续需按实际情况调试
-    can2_filter.FilterActivation = ENABLE;
-    can2_filter.FilterBank = 14;
-    can2_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    can2_filter.FilterIdHigh = 0x0000;
-    can2_filter.FilterIdLow = 0x0000;
-    can2_filter.FilterMaskIdHigh = 0x0000;
-    can2_filter.FilterMaskIdLow = 0x0000;
-    can2_filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    can2_filter.FilterScale = CAN_FILTERSCALE_32BIT;
-    can2_filter.SlaveStartFilterBank = 14;
-    (void)HAL_CAN_ConfigFilter(&hcan2, &can2_filter);
+    can1_filter.FilterActivation = ENABLE;
+    can1_filter.FilterBank = 1;
+    can1_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can1_filter.FilterIdHigh = 0x0000;
+    can1_filter.FilterIdLow = 0x0000;
+    can1_filter.FilterMaskIdHigh = 0x0000;
+    can1_filter.FilterMaskIdLow = 0x0000;
+    can1_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can1_filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    can1_filter.SlaveStartFilterBank = 14;
 
-    (void)HAL_CAN_Start(&hcan2);
-    (void)HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
+    if (HAL_CAN_GetState(&hcan1) == HAL_CAN_STATE_READY)
+    {
+        (void)HAL_CAN_ConfigFilter(&hcan1, &can1_filter);
+        (void)HAL_CAN_Start(&hcan1);
+        (void)HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    }
 
     s_can_started = 1U;
 }
@@ -426,7 +429,7 @@ static void Chassis_SendOutput(void)
         return;
     }
 //否则发送
-    GM3508_SendCurrentCAN2(s_chassis.motor_current);
+    GM3508_SendCurrentCAN1(s_chassis.motor_current);
 }
 
 
@@ -438,7 +441,7 @@ static void Chassis_StopAll(void)
     s_chassis.cmd.vx_mps = 0.0f;
     s_chassis.cmd.vy_mps = 0.0f;
     s_chassis.cmd.wz_radps = 0.0f;
-    GM3508_SendCurrentCAN2(s_chassis.motor_current);
+    GM3508_SendCurrentCAN1(s_chassis.motor_current);
 }
 
 

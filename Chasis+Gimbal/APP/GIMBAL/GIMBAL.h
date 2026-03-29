@@ -19,8 +19,8 @@ extern "C" {
 //此处是最大最小洗限制区域,软件限位在这里调试
 #define GIMBAL_YAW_MIN_DEG                 (-155.0f)
 #define GIMBAL_YAW_MAX_DEG                 (155.0f)
-#define GIMBAL_PITCH_MIN_DEG               (-20.0f)
-#define GIMBAL_PITCH_MAX_DEG               (28.0f)
+#define GIMBAL_PITCH_MIN_DEG               (-42.0f)
+#define GIMBAL_PITCH_MAX_DEG               (42.0f)
 #define GIMBAL_SOFT_LIMIT_MARGIN_DEG       (2.0f)
 
 

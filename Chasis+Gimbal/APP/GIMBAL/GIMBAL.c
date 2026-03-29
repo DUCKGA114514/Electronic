@@ -2,7 +2,7 @@
  * 文件说明：
  * 云台 1ms 控制任务。
  * 主流程：读取电机反馈/IMU/视觉目标 -> 选择模式（初始化/巡逻/自瞄/安全） -> 计算目标角度 ->
- * 执行角度环 + 速度环串级 PID -> 通过 CAN1 向 GM6020 发送电压指令。
+ * 执行角度环 + 速度环串级 PID -> 通过 CAN2 向 GM6020 发送电压指令。
  */
 #include "GIMBAL.h"
 
@@ -33,7 +33,7 @@ static GimbalAxisPid_t s_yaw_pid;   //yaw轴的两个环-->angle  rate
 static GimbalAxisPid_t s_pitch_pid; //pitch轴的两个环 -->angle rate
 
 
-/* 仅做一次 CAN1 初始化，避免任务重入或异常恢复时重复开启。 */
+/* 仅做一次 CAN2 初始化，避免任务重入或异常恢复时重复开启。 */
 static uint8_t s_can_started = 0U;
 
 
@@ -57,7 +57,7 @@ static float Gimbal_Wrap180(float deg);
 static float Gimbal_Sawtooth(uint32_t period_ms, float min_deg, float max_deg);
 
 
-/*初始化CAN1并启动接收中断*/
+/*初始化CAN2并启动接收中断*/
 static void Gimbal_CANInitOnce(void)
 {
     //如果已经初始化过就返回，保证不重复初始化
@@ -67,21 +67,21 @@ static void Gimbal_CANInitOnce(void)
     }
 
     //先不过滤，全部接收先这里后续需要调
-    CAN_FilterTypeDef can1_filter = {0};
-    can1_filter.FilterActivation = ENABLE;
-    can1_filter.FilterBank = 0;
-    can1_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    can1_filter.FilterIdHigh = 0x0000;
-    can1_filter.FilterIdLow = 0x0000;
-    can1_filter.FilterMaskIdHigh = 0x0000;
-    can1_filter.FilterMaskIdLow = 0x0000;
-    can1_filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    can1_filter.FilterScale = CAN_FILTERSCALE_32BIT;
-    can1_filter.SlaveStartFilterBank = 14;
+    CAN_FilterTypeDef can2_filter = {0};
+    can2_filter.FilterActivation = ENABLE;
+    can2_filter.FilterBank = 14;
+    can2_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can2_filter.FilterIdHigh = 0x0000;
+    can2_filter.FilterIdLow = 0x0000;
+    can2_filter.FilterMaskIdHigh = 0x0000;
+    can2_filter.FilterMaskIdLow = 0x0000;
+    can2_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can2_filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    can2_filter.SlaveStartFilterBank = 14;
 
-    (void)HAL_CAN_ConfigFilter(&hcan1, &can1_filter);
-    (void)HAL_CAN_Start(&hcan1);
-    (void)HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    (void)HAL_CAN_ConfigFilter(&hcan2, &can2_filter);
+    (void)HAL_CAN_Start(&hcan2);
+    (void)HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
     //把started调成1U保证已经初始化完毕
     s_can_started = 1U;
 }
@@ -402,7 +402,7 @@ static void Gimbal_SendOutput(void)
     /**********************************************************************此处参考了AI****************************************************************/
 
     //发送！！！！！！！！
-    GM6020_SendCurrentsCAN1(s_gimbal.yaw_current_cmd, s_gimbal.pitch_current_cmd);
+    GM6020_SendCurrentsCAN2(s_gimbal.yaw_current_cmd, s_gimbal.pitch_current_cmd);
 }
 
 

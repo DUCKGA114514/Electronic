@@ -14,6 +14,6 @@
 #define hcanx       &hcan1
 
 uint8_t CAN_Send_Handle(CAN_HandleTypeDef *hcan, uint16_t ID, uint8_t *Data, uint8_t Length);
-uint8_t CAN_1Send(uint16_t ID,uint8_t *Data,uint8_t Length);
+uint8_t CAN1_Send(uint16_t ID, uint8_t *Data, uint8_t Length);
 
 #endif //GIMBAL_BSP_CAN_H

@@ -112,12 +112,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
      memcpy(frame.data, buf, 8);
      frame.bus = (hcan->Instance == CAN1) ? 1U : 2U;
 
-     if (frame.bus == 1U)
-     {
-          GM6020_ProcessFeedback(&frame);
-     }
-     else
+     if ((frame.bus == 1U) &&
+         (frame.std_id >= GM3508_FEEDBACK_STDID_BASE) &&
+         (frame.std_id < (GM3508_FEEDBACK_STDID_BASE + GM3508_MOTOR_NUM)))
      {
           GM3508_ProcessFeedback(&frame);
+     }
+     else if ((frame.bus == 2U) &&
+              (frame.std_id > GM6020_FB_STDID_BASE) &&
+              (frame.std_id <= (GM6020_FB_STDID_BASE + 7U)))
+     {
+          GM6020_ProcessFeedback(&frame);
      }
 }

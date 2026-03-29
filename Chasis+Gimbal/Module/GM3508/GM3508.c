@@ -22,8 +22,7 @@ void GM3508_ProcessFeedback(const CanRxFrame_t *frame)
         return;
     }
 
-    if ((frame->bus != 2U) ||
-        (frame->std_id < GM3508_FEEDBACK_STDID_BASE) ||
+    if ((frame->std_id < GM3508_FEEDBACK_STDID_BASE) ||
         (frame->std_id >= (GM3508_FEEDBACK_STDID_BASE + GM3508_MOTOR_NUM)))
     {
         return;
@@ -39,7 +38,7 @@ void GM3508_ProcessFeedback(const CanRxFrame_t *frame)
 }
 
 //发送！
-void GM3508_SendCurrentCAN2(const int16_t current_cmd[GM3508_MOTOR_NUM])
+void GM3508_SendCurrentCAN1(const int16_t current_cmd[GM3508_MOTOR_NUM])
 {
     /* 4 个 int16 电流值按大端方式打包成 8 字节 CAN 数据区。 */
     uint8_t tx_data[8];
@@ -58,7 +57,7 @@ void GM3508_SendCurrentCAN2(const int16_t current_cmd[GM3508_MOTOR_NUM])
     tx_data[6] = (uint8_t)((current_cmd[3] >> 8) & 0xFF);
     tx_data[7] = (uint8_t)(current_cmd[3] & 0xFF);
 
-    (void)CAN_Send_Handle(&hcan2, GM3508_CONTROL_STDID, tx_data, 8U);
+    (void)CAN_Send_Handle(&hcan1, GM3508_CONTROL_STDID, tx_data, 8U);
 }
 
 //判断电机是否在线
