@@ -195,6 +195,8 @@ static void Chassis_UpdateMode(void)
     {
         s_chassis.mode = CHASSIS_MODE_SPIN;
     }
+    /* S1 拨杆损坏：强制固定为遥控模式。 */
+    s_chassis.mode = CHASSIS_MODE_REMOTE;
 }
 
 //安全保护
@@ -262,6 +264,10 @@ static void Chassis_UpdateCommandFromRemote(void)
         max_vy = 2.0f;
         max_wz = 8.0f;
     }
+    /* S2 拨杆损坏：强制固定为中挡。 */
+    max_vx = 1.5f;
+    max_vy = 1.5f;
+    max_wz = 5.0f;
 
 
     //小车目标速度
@@ -289,6 +295,8 @@ static void Chassis_UpdateCommandFromRemote(void)
     if (s_chassis.mode == CHASSIS_MODE_SPIN)
     {
         float spin_base = (rc->s2 == DT7_SWITCH_DOWN) ? 10.0f : 7.0f;
+        /* S2 拨杆损坏：小陀螺基础角速度固定。 */
+        spin_base = 7.0f;
         if (rc->ch[2] >= 0)
         {
             target_wz = spin_base + Chassis_RemoteToYawRate(rc->ch[2], 2.0f);

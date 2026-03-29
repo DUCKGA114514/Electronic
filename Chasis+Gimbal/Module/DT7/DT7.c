@@ -104,10 +104,7 @@ static uint8_t DT7_ParseFrame(const uint8_t *buf, DT7_State_t *state)
         temp.ch[i] = DT7_ClampChannel(temp.ch[i]);
     }
 
-    if ((!DT7_SwitchValid(temp.s1)) || (!DT7_SwitchValid(temp.s2)))
-    {
-        return 0U;
-    }
+    /* S1/S2 拨杆损坏：不再以拨杆值作为整帧有效性的判据。 */
 
     //成功解析，状态更新
     temp.valid = 1U;
