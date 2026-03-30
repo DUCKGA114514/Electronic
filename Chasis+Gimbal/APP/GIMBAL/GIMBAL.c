@@ -307,8 +307,8 @@ static void Gimbal_UpdateTarget(void)
     else if (s_gimbal.mode == GIMBAL_MODE_SENTRY)//哨兵模式
     {
         //在限位区域内进行扫描  角度在后面进行调试  周期在.h文件里面调试
-        s_gimbal.target_world_yaw_deg = Gimbal_Sawtooth(GIMBAL_SENTRY_YAW_PERIOD_MS, -60.0f, 60.0f);
-        s_gimbal.target_world_pitch_deg = Gimbal_Sawtooth(GIMBAL_SENTRY_PITCH_PERIOD_MS, -8.0f, 10.0f);
+        s_gimbal.target_world_yaw_deg = Gimbal_Sawtooth(GIMBAL_SENTRY_YAW_PERIOD_MS, -120.0f, 120.0f);
+        s_gimbal.target_world_pitch_deg = Gimbal_Sawtooth(GIMBAL_SENTRY_PITCH_PERIOD_MS, -35.0f, 35.0f);
     }
     else//其它模式  保持当前位置不动
     {

@@ -14,11 +14,11 @@ extern "C" {
 #define GIMBAL_DT_S                        (1.0f / GIMBAL_CTRL_HZ)
 #define GIMBAL_VISION_TIMEOUT_MS           80U
 #define GIMBAL_SENTRY_YAW_PERIOD_MS        3500U
-#define GIMBAL_SENTRY_PITCH_PERIOD_MS      1800U
+#define GIMBAL_SENTRY_PITCH_PERIOD_MS      3000U
 
 //此处是最大最小洗限制区域,软件限位在这里调试
-#define GIMBAL_YAW_MIN_DEG                 (-155.0f)
-#define GIMBAL_YAW_MAX_DEG                 (155.0f)
+#define GIMBAL_YAW_MIN_DEG                 (-40.0f)
+#define GIMBAL_YAW_MAX_DEG                 (140.0f)
 #define GIMBAL_PITCH_MIN_DEG               (-42.0f)
 #define GIMBAL_PITCH_MAX_DEG               (42.0f)
 #define GIMBAL_SOFT_LIMIT_MARGIN_DEG       (2.0f)
