@@ -18,19 +18,53 @@
 #include "GM3508.h"
 #include "GM6020.h"
 
+static volatile CAN_DebugStats_t s_can_dbg = {0};
+
+const volatile CAN_DebugStats_t *CAN_GetDebugStats(void)
+{
+    return &s_can_dbg;
+}
+
 static void CAN_DispatchFrame(CAN_HandleTypeDef *hcan, uint32_t fifo)
 {
      CAN_RxHeaderTypeDef RxHeader;
      uint8_t buf[8] = {0};
      CanRxFrame_t frame = {0};
+     uint8_t is_can1 = (hcan->Instance == CAN1) ? 1U : 0U;
+     uint8_t is_can2 = (hcan->Instance == CAN2) ? 1U : 0U;
+
+     if (is_can1 != 0U)
+     {
+          s_can_dbg.can1_irq_cnt++;
+     }
+     else if (is_can2 != 0U)
+     {
+          s_can_dbg.can2_irq_cnt++;
+     }
 
      if (HAL_CAN_GetRxMessage(hcan, fifo, &RxHeader, buf) != HAL_OK)
      {
+          if (is_can1 != 0U)
+          {
+               s_can_dbg.can1_hal_rx_err_cnt++;
+          }
+          else if (is_can2 != 0U)
+          {
+               s_can_dbg.can2_hal_rx_err_cnt++;
+          }
           return;
      }
 
      if (RxHeader.IDE != CAN_ID_STD || RxHeader.RTR != CAN_RTR_DATA)
      {
+          if (is_can1 != 0U)
+          {
+               s_can_dbg.can1_non_std_or_rtr_drop_cnt++;
+          }
+          else if (is_can2 != 0U)
+          {
+               s_can_dbg.can2_non_std_or_rtr_drop_cnt++;
+          }
           return;
      }
 
@@ -38,16 +72,30 @@ static void CAN_DispatchFrame(CAN_HandleTypeDef *hcan, uint32_t fifo)
      memcpy(frame.data, buf, (RxHeader.DLC <= 8U) ? RxHeader.DLC : 8U);
      frame.bus = (hcan->Instance == CAN1) ? 1U : 2U;
 
+     if (frame.bus == 1U)
+     {
+          s_can_dbg.can1_dispatch_cnt++;
+     }
+     else
+     {
+          s_can_dbg.can2_dispatch_cnt++;
+          s_can_dbg.can2_last_std_id = frame.std_id;
+          s_can_dbg.can2_last_dlc = RxHeader.DLC;
+          s_can_dbg.can2_last_tick_ms = HAL_GetTick();
+     }
+
      if ((frame.bus == 1U) &&
          (frame.std_id >= GM3508_FEEDBACK_STDID_BASE) &&
          (frame.std_id < (GM3508_FEEDBACK_STDID_BASE + GM3508_MOTOR_NUM)))
      {
+          s_can_dbg.can1_gm3508_cnt++;
           GM3508_ProcessFeedback(&frame);
      }
      else if ((frame.bus == 2U) &&
               (frame.std_id >= GM6020_FB_STDID_BASE) &&
               (frame.std_id <= (GM6020_FB_STDID_BASE + 7U)))
      {
+          s_can_dbg.can2_gm6020_cnt++;
           GM6020_ProcessFeedback(&frame);
      }
 }
