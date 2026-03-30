@@ -100,7 +100,7 @@ static void Chassis_CANInitOnce(void)
     {
         (void)HAL_CAN_ConfigFilter(&hcan1, &can1_filter);
         (void)HAL_CAN_Start(&hcan1);
-        (void)HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+        (void)HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
     }
 
     s_can_started = 1U;

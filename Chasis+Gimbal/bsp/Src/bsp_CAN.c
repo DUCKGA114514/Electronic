@@ -18,6 +18,40 @@
 #include "GM3508.h"
 #include "GM6020.h"
 
+static void CAN_DispatchFrame(CAN_HandleTypeDef *hcan, uint32_t fifo)
+{
+     CAN_RxHeaderTypeDef RxHeader;
+     uint8_t buf[8] = {0};
+     CanRxFrame_t frame = {0};
+
+     if (HAL_CAN_GetRxMessage(hcan, fifo, &RxHeader, buf) != HAL_OK)
+     {
+          return;
+     }
+
+     if (RxHeader.IDE != CAN_ID_STD || RxHeader.RTR != CAN_RTR_DATA)
+     {
+          return;
+     }
+
+     frame.std_id = (uint16_t)RxHeader.StdId;
+     memcpy(frame.data, buf, (RxHeader.DLC <= 8U) ? RxHeader.DLC : 8U);
+     frame.bus = (hcan->Instance == CAN1) ? 1U : 2U;
+
+     if ((frame.bus == 1U) &&
+         (frame.std_id >= GM3508_FEEDBACK_STDID_BASE) &&
+         (frame.std_id < (GM3508_FEEDBACK_STDID_BASE + GM3508_MOTOR_NUM)))
+     {
+          GM3508_ProcessFeedback(&frame);
+     }
+     else if ((frame.bus == 2U) &&
+              (frame.std_id >= GM6020_FB_STDID_BASE) &&
+              (frame.std_id <= (GM6020_FB_STDID_BASE + 7U)))
+     {
+          GM6020_ProcessFeedback(&frame);
+     }
+}
+
 /*
 * 参数说明：
 参数	作用
@@ -94,34 +128,10 @@ CAN收到数据
  */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-     CAN_RxHeaderTypeDef RxHeader;
-     uint8_t buf[8] = {0};
-     CanRxFrame_t frame = {0};
+     CAN_DispatchFrame(hcan, CAN_RX_FIFO0);
+}
 
-     if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, buf) != HAL_OK)
-     {
-          return;
-     }
-
-     if (RxHeader.IDE != CAN_ID_STD || RxHeader.RTR != CAN_RTR_DATA)
-     {
-          return;
-     }
-
-     frame.std_id = (uint16_t)RxHeader.StdId;
-     memcpy(frame.data, buf, 8);
-     frame.bus = (hcan->Instance == CAN1) ? 1U : 2U;
-
-     if ((frame.bus == 1U) &&
-         (frame.std_id >= GM3508_FEEDBACK_STDID_BASE) &&
-         (frame.std_id < (GM3508_FEEDBACK_STDID_BASE + GM3508_MOTOR_NUM)))
-     {
-          GM3508_ProcessFeedback(&frame);
-     }
-     else if ((frame.bus == 2U) &&
-              (frame.std_id > GM6020_FB_STDID_BASE) &&
-              (frame.std_id <= (GM6020_FB_STDID_BASE + 7U)))
-     {
-          GM6020_ProcessFeedback(&frame);
-     }
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+     CAN_DispatchFrame(hcan, CAN_RX_FIFO1);
 }

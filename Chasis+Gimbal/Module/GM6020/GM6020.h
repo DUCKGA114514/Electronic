@@ -14,8 +14,8 @@ extern "C" {
 #define GM6020_YAW_INDEX                0  //电机编号
 #define GM6020_PITCH_INDEX              1  //电机编号
 
-#define GM6020_YAW_ID                   1   //这里需要我们更改
-#define GM6020_PITCH_ID                 2
+#define GM6020_YAW_ID                   2   //这里需要我们更改
+#define GM6020_PITCH_ID                 4
 
 #define GM6020_FB_STDID_BASE            0x204  //接收
 #define GM6020_CTRL_STDID_CURRENT_1_4   0x1FF  //使用电压控制

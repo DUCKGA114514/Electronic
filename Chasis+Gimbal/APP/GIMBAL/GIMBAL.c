@@ -81,7 +81,7 @@ static void Gimbal_CANInitOnce(void)
 
     (void)HAL_CAN_ConfigFilter(&hcan2, &can2_filter);
     (void)HAL_CAN_Start(&hcan2);
-    (void)HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING);
+    (void)HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
     //把started调成1U保证已经初始化完毕
     s_can_started = 1U;
 }
